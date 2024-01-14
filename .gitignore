@@ -1,0 +1,15 @@
+# Project place file
+/rbx-png.rbxlx
+
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+# Package build
+/build
+
+# Luau sourcemap
+/sourcemap.json
+
+# Wally packages
+/Packages
