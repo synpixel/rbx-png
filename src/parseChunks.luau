@@ -3,8 +3,7 @@ local Chunk = require(script.Parent.Chunk)
 local switchEndianness = require(script.Parent.switchEndianness)
 
 export type ChunkResult = {
-	width: number,
-	height: number,
+	size: Vector2,
 	bitDepth: number,
 	colorType: number,
 	compressionMethod: number,
@@ -23,10 +22,9 @@ export type ChunkResult = {
 }
 
 local chunks = {
-	Chunk.new("IHDR", function(state: ChunkResult, chunk)
+	Chunk.new("IHDR", function(_state: ChunkResult, chunk)
 		return {
-			width = switchEndianness(chunk:readU32()),
-			height = switchEndianness(chunk:readU32()),
+			size = Vector2.new(switchEndianness(chunk:readU32()), switchEndianness(chunk:readU32())),
 			bitDepth = chunk:readU8(),
 			colorType = chunk:readU8(),
 			compressionMethod = chunk:readU8(),
@@ -35,7 +33,7 @@ local chunks = {
 		}
 	end),
 
-	Chunk.new("PLTE", function(state: ChunkResult, chunk)
+	Chunk.new("PLTE", function(_state: ChunkResult, chunk)
 		local palette = {}
 
 		local colors = chunk:readAllBytes()
@@ -83,7 +81,7 @@ local chunks = {
 		return {}
 	end),
 
-	Chunk.new("cHRM", function(state: ChunkResult, chunk)
+	Chunk.new("cHRM", function(_state: ChunkResult, chunk)
 		local colors = { "White", "Red", "Green", "Blue" }
 		local chrome = {}
 
@@ -97,11 +95,11 @@ local chunks = {
 		return { chromaticity = chrome }
 	end),
 
-	Chunk.new("gAMA", function(state: ChunkResult, chunk)
+	Chunk.new("gAMA", function(_state: ChunkResult, chunk)
 		return { gamma = switchEndianness(chunk:readU32()) / 10e4 }
 	end),
 
-	Chunk.new("sRGB", function(state: ChunkResult, chunk)
+	Chunk.new("sRGB", function(_state: ChunkResult, chunk)
 		return { renderIntent = chunk:readU8() }
 	end),
 
@@ -126,7 +124,7 @@ local chunks = {
 		return { metadata = metadata }
 	end),
 
-	Chunk.new("tIME", function(state: ChunkResult, chunk)
+	Chunk.new("tIME", function(_state: ChunkResult, chunk)
 		return {
 			timestamp = DateTime.fromUniversalTime(
 				chunk:readU16(),
